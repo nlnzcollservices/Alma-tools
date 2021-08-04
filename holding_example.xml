@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<holding>
+	<holding_id></holding_id>
+	<suppress_from_publishing>false</suppress_from_publishing>
+	<record>
+		<leader>#####nu##a22#####1n#4500</leader>
+		<controlfield tag="008">######0u####8###4001bueng0000000</controlfield>
+		<datafield tag="852" ind1="8" ind2=" ">
+			<subfield code="b"></subfield>
+			<subfield code="c"></subfield>
+    	</datafield>
+	</record>
+</holding>
