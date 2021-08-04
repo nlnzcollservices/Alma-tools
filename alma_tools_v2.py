@@ -4,9 +4,6 @@ from bs4 import BeautifulSoup as bs
 import re
 import os
 import sys
-import configparser
-from openpyxl import load_workbook
-from selenium import webdriver
 
 
 pr_key = "YOUR KEY"
