@@ -9,7 +9,7 @@ from podcast_dict import podcasts_dict
 import urllib3
 import io
 import xml.dom.minidom
-from alma_tools import AlmaTools()
+from alma_tools_v3 import AlmaTools
 
 urllib3.disable_warnings()
 # driver = webdriver.Firefox()
@@ -192,12 +192,12 @@ def main():
 	# 	my_api.get_representations(mms.split(".")[0])
 	# 	print(mms.split(".")[0])
 	# # 	print(my_api.xml_response_data)\
-	# mms_id = "9912860763502836"
+
 
 	# my_api.get_representations(mms_id,{"limit":"100"})
-	# print(my_api.xml_response_data)
+	# # print(my_api.xml_response_data)
 	# num = re.findall(r'record_count="(.*?)">',my_api.xml_response_data)[0]
-	# print(num)
+	# # print(num)
 	# for i in range((int(num)//100)+1):
 		
 	# 	my_api.get_representations(mms_id,{"limit":"100","offset":str(100*i)})
@@ -207,13 +207,15 @@ def main():
 	# 		#print(my_api.xml_response_data)
 	# 		ie = re.findall(r"pubam:(.*?)</",my_api.xml_response_data)[0]
 	# 		label = re.findall(r'<label>(.*?)</label', my_api.xml_response_data)[0]
-	# 		if "2022" in label and "iss.20" in label:
-	# 		# 	#new_label = re.findall(r'<label>(.*?)</label', my_api.xml_response_data)[0].replace(")","").replace("(","").replace(". ",".")
-	# 			my_data = my_api.xml_response_data.replace("2022","2021")#.replace("2022 <",">2021<")
-	# 			my_api.update_representation(mms_id, rep, my_data)
-	# 			print(my_api.xml_response_data)
-	# 			print(ie)
-	# 			print(label)
+	# 		delivery_url = re.findall(r'<delivery_url>(.*?)</delivery_url>', my_api.xml_response_data)[0]
+	# 		if "2017" in label:
+			# 	#new_label = re.findall(r'<label>(.*?)</label', my_api.xml_response_data)[0].replace(")","").replace("(","").replace(". ",".")
+				#my_data = my_api.xml_response_data.replace("2022","2021")#.replace("2022 <",">2021<")
+				#my_api.update_representation(mms_id, rep, my_data)
+				#print(my_api.xml_response_data)
+				# print(ie)
+				# print(label)
+				# print(delivery_url)
 
 	########################################GET REPRESENTATION####################################
 	# my_api.get_representation ("9918991865302836", "32363085860002836")
@@ -336,14 +338,20 @@ def main():
 	# my_api.get_vendor(vendor_code)
 	# print(my_api.xml_response_data)
 ##############################UPDATING ITEMS####################################################################3
-	# my_api.get_items("9916487913502836","22218308440002836",{"limit":"100"})
-	# print(my_api.xml_response_data)
-	# items = re.findall(r"<pid>(.*?)</pid>", my_api.xml_response_data)
-	# for el in items:
-	# 	my_api.get_item("9916487913502836","22218308440002836",el)
-	# 	print(my_api.xml_response_data)
-	# 	descr = re.findall(r"<description>(.*?)</description>", my_api.xml_response_data)[0]
-	# 	if descr.endswith(" 01"):
+	mms_id = "9919076273402836"
+	holding_id = "22363012950002836"
+	descriptions = ["2018 01","2018 02","2018 03","2018 04","2018 05","2018 06","2018 07","2018 08","2018 09","2018 10","2018 11","2019 01","2019 02","2019 03","2019 04","2019 06","2019 07","2019 08","2019 09","2019 10","2019 11","2020 05"]
+	my_api.get_items(mms_id ,holding_id,{"limit":"100"})
+	print(my_api.xml_response_data)
+	items = re.findall(r"<pid>(.*?)</pid>", my_api.xml_response_data)
+	for el in items:
+		my_api.get_item(mms_id,holding_id,el)
+		# print(my_api.xml_response_data)
+		descr = re.findall(r"<description>(.*?)</description>", my_api.xml_response_data)[0]
+		if descr in descriptions:
+			print(descr)
+			item_pid = re.findall(r"<pid>(.*?)</pid>", my_api.xml_response_data)[0]
+			print(item_pid)
 	# 		new_descr = " ".join(descr.split(" ")[:-1])
 	# 		print(new_descr)
 	# 		cron = re.findall(r"<chronology_k>(.*?)</chronology_k>", my_api.xml_response_data)[0]
@@ -351,6 +359,9 @@ def main():
 	# 		print(new_data)
 	# 		my_api.update_item("9916487913502836","22218308440002836",el, new_data)
 	# 		print(my_api.xml_response_data)
+			my_api.delete_item(mms_id, holding_id, item_pid ,{"override":True})
+			print(my_api.xml_response_data)
+
  
 	# items =["23379982560002836","23379963540002836","23379963940002836","23379963950002836","23379963570002836","23379966370002836","23379962140002836","23379963470002836","23379982610002836","23379965300002836","23379963890002836","23379984370002836","23379964640002836","23379982660002836","23379964650002836","23379982770002836","23379984320002836","23379963410002836","23379963340002836","23379962090002836","23379963600002836","23379963370002836","23379966450002836","23379965750002836","23379963510002836","23379966470002836","23379963840002836","23379982540002836","23379982650002836","23379966480002836","23379984080002836","23379963830002836","23379983510002836","23379964900002836","23379984440002836","23379961990002836","23379984360002836","23379962000002836","23379962060002836","23379963440002836","23379984270002836","23379963880002836","23379963770002836","23379983540002836","23379963920002836","23379966440002836","23379963480002836","23379963860002836","23379982620002836","23379963490002836","23379984300002836","23379982700002836","23379962030002836","23379982530002836","23379982640002836","23379982670002836","23379963800002836","23379984340002836","23379962020002836","23379962010002836","23379982760002836","23379984450002836","23379963460002836","23379982600002836","23379983530002836","23379963590002836","23379984350002836","23379963420002836","23379965070002836","23379982680002836","23379984390002836","23379984420002836","23379963850002836","23379984410002836","23379962150002836","23379963580002836","23379962130002836","23379963500002836","23379963900002836","23379984430002836","23379962110002836","23379963520002836","23379963430002836","23379982730002836","23379982690002836","23379983520002836","23379964810002836","23379966460002836","23379964660002836","23379963930002836","23379982630002836","23379982550002836","23379984330002836","23379962120002836","23379963530002836","23379962100002836","23379962190002836","23379962160002836","23379984380002836","23379984400002836","23379982590002836","23379963380002836","23379963550002836","23379983590002836","23379982580002836","23379966060002836","23379963560002836","23379982570002836","23379982520002836","23379983550002836","23379963870002836","23379984310002836","23379983600002836","23379983560002836","23379963450002836","23379961960002836"]	
 

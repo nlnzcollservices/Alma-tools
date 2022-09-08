@@ -45,16 +45,22 @@ class AlmaTools():
 		get_items(self, mms_id, holding_id, options)
 		get_item(self, mms_id, holding_id, item_pid, options)
 		update_item(self, mms_id, holding_id, item_pid, xml_record_data, options)
-		delete_item(self, mms_id, holding_id, item_pid)
+		delete_item(self, mms_id, holding_id, item_pid, options)
 		get_representations(self, mms_id, options)
 		get_representation(self, mms_id, rep_id, options)
 		update_representation(self, mms_id, rep_id, xml_record_data, options)
 		create_item_by_po_line(self, po_line, xml_record_data, options)
-
+		get_portfolios(self, mms_id, portfolio_id, oprions)
 		get_portfolio(self, mms_id, portfolio_id, options)
+		create_portfolio(self, mms_id, options)
+		update_portfolio(self, mms_id, portfolio_id, options)
 		delete_portfolio(self, mms_id, portfolio_id, options)
-		get_ecollection(self, mms_id, ecollection_id, oprions)
-
+		get_ecollection(self, mms_id, ecollection_id, options)
+		get_invoice(self, invoice_id, options)
+		get_invoice_linesself, (invoice_id, options)
+		get_invoice_line(self, invoice_id, line_id, options)
+		update_invoice_line(self, invoice_id, line_id, options)
+		create_invoice(self, xml_record_data)
 	"""
 
 	def __init__(self, alma_key):
@@ -134,7 +140,7 @@ class AlmaTools():
 		"""
 
 		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.get(f"{self.base_api_url}{mms_id}/e-collections/{ecollection_id}", params=parameters)
+		r = requests.get(f"{self.base_api_url}{mms_id}/e-collections/{ecollection_id}", params=parameters,verify= False)
 		# print(r.text)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
@@ -182,6 +188,22 @@ class AlmaTools():
 		parameters = {**{"apikey": self.alma_key}, **options}
 		xml_record_data = xml_record_data.replace("\\", "")
 		r = requests.post(f"{self.base_api_url}{mms_id}/portfolios/", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"), verify= False)
+		#print(r.url)
+		self.xml_response_data = r.text
+		self.status_code = r.status_code
+		
+	def update_portfolio(self, mms_id, portfolio_id, xml_record_data, options = {}):
+
+		"""
+		Creates a portfolio for a bib
+		Argumets:
+			mms_id(str) - id of the bibliographic record
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		xml_record_data = xml_record_data.replace("\\", "")
+		r = requests.put(f"{self.base_api_url}{mms_id}/portfolios/{portfolio_id}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"), verify= False)
 		#print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
@@ -540,11 +562,11 @@ class AlmaTools():
 		"""
 		xml_record_data = xml_record_data.replace("\\", "")
 		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.put(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items/{item_pid}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"))
+		r = requests.put(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items/{item_pid}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"),verify= False)
 		self.xml_response_data=  r.text
 		self.status_code = r.status_code
 
-	def delete_item( self, mms_id, holding_id, item_pid):
+	def delete_item( self, mms_id, holding_id, item_pid,options={}):
 
 		"""
 		Deletes item by item PID
@@ -555,7 +577,8 @@ class AlmaTools():
 		Returns:
 			None
 		"""
-		r = requests.delete(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items/{item_pid}?apikey={self.alma_key}",verify= False)
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.delete(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items/{item_pid}",params=parameters,verify= False)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -685,7 +708,7 @@ class AlmaTools():
 		"""
 		xml_record_data = xml_record_data.replace("\\", "")
 		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.put(f"{self.acq_base_api_url}{po_line}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"))
+		r = requests.put(f"{self.acq_base_api_url}{po_line}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"),verify= False)
 		self.xml_response_data=  r.text
 		self.status_code = r.status_code
 	def get_items_by_po_line(self, po_line, options={}):
@@ -699,7 +722,7 @@ class AlmaTools():
 		"""
 
 		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.get(f"{self.acq_base_api_url}{po_line}/items", params=parameters)
+		r = requests.get(f"{self.acq_base_api_url}{po_line}/items", params=parameters,verify= False)
 		# print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
@@ -737,7 +760,7 @@ class AlmaTools():
 			None
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.post(f"{self.acq_base_api_url}{po_line}/items/{item_pid}", xml_record_data, headers=self.headers, params=parameters)
+		r = requests.post(f"{self.acq_base_api_url}{po_line}/items/{item_pid}", xml_record_data, headers=self.headers, params=parameters,verify= False)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
