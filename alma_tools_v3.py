@@ -61,6 +61,8 @@ class AlmaTools():
 		get_invoice_line(self, invoice_id, line_id, options)
 		update_invoice_line(self, invoice_id, line_id, options)
 		create_invoice(self, xml_record_data)
+		get_po_lines(self)
+		get_po_line(self, po_line)
 	"""
 
 	def __init__(self, alma_key):
@@ -650,20 +652,7 @@ class AlmaTools():
 		self.status_code = r.status_code
 
 
-	def get_po_line(self, invoice_id, options={}):
-
-		""" 
-		Retrieves the purchase order line  in XML for a given Alma POL
-		Parameters:
-			po_line(str) - Alma POL
-			options(dict) - optional parameters for request
-		Returns:
-			None
-		"""
-		parameters = {**{"apikey": self.alma_key}, **options}
-		r = requests.get(f"{self.acq_base_api_url}{po_line}", params=parameters,verify= False)
-		self.xml_response_data = r.text
-		self.status_code = r.status_code
+	
 
 	def get_vendor(self, vendor_code, options={}):
 
