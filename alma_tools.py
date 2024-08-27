@@ -4,7 +4,8 @@ from bs4 import BeautifulSoup as bs
 import re
 import os
 import sys
-
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 
@@ -12,6 +13,18 @@ pr_key = "YOUR KEY"
 sb_key = "YOUR SB KEY"
 
 ##################################################################################################
+
+#import configparser
+#secrets_and_credentials_fold = r'H:\secrets_credentials'
+#sys.path.insert(0, secrets_and_credentials_fold)
+#secret_file = os.path.join(secrets_and_credentials_fold, "secrets")
+#config = configparser.ConfigParser()
+#config.read(secret_file)
+#pr_key = config.get( "configuration", "production") 
+#sb_key= config.get("configuration", "sandbox")	
+
+###################################################################################################
+
 class AlmaTools():
 	
 	""" 
@@ -81,6 +94,7 @@ class AlmaTools():
 		self.acq_base_vendor_url = "https://api-ap.hosted.exlibrisgroup.com/almaws/v1/acq/vendors/"
 		self.config_base_url = "https://api-ap.hosted.exlibrisgroup.com/almaws/v1/conf/"
 		self.acq_base_invoice_url ="https://api-ap.hosted.exlibrisgroup.com/almaws/v1/acq/invoices/"
+		self.acq_base_url = "https://api-ap.hosted.exlibrisgroup.com/almaws/v1/acq/"
 		self.mms_id = None
 		self.holding_id = None
 		self.item_pid = None
@@ -100,7 +114,7 @@ class AlmaTools():
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
 		r = requests.get(f"{self.base_api_url}{mms_id}", params=parameters,verify= False)
-		print(r.url)
+		#print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -125,8 +139,10 @@ class AlmaTools():
 		Parameters:
 			set_id(str) - id of the set
 		"""
+		print(options)
 
 		parameters = {**{"apikey": self.alma_key}, **options}
+		print(parameters)
 		r= requests.get(f"{self.config_base_url}sets/{set_id}/members",params = parameters, verify = False)
 		# print(f'{self.config_base_url}sets/{set_id}')
 		self.xml_response_data = r.text
@@ -282,9 +298,9 @@ class AlmaTools():
 			None
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
-		print(f"{self.acq_base_invoice_url}{invoice_id}/lines/{line_id}")
+		#print(f"{self.acq_base_invoice_url}{invoice_id}/lines/{line_id}")
 		r = requests.get(f"{self.acq_base_invoice_url}{invoice_id}/lines/{line_id}",params=parameters,verify= False)
-		print(r.url)
+		#print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -450,6 +466,25 @@ class AlmaTools():
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
+
+	def  create_po_line(self, xml_record_data, options={}):
+
+		"""Makes PO_line
+
+		Parameters:
+		    value(str) - po_line record in xml format
+		Returns:
+		    flag(bool) - True if po_line was not created
+		    pol (str) - Alma po_line number
+		"""
+		xml_record_data = xml_record_data.replace("\\", "")
+		headers = {'content-Type':'application/xml'}
+		parameters = {**{"apikey": self.alma_key}, **options}
+
+		r = requests.post(r"https://api-ap.hosted.exlibrisgroup.com/almaws/v1/acq/po-lines",  headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"),verify= False)
+		self.xml_response_data=  r.text
+		self.status_code = r.status_code
+   
 	def get_holding(self, mms_id, holding_id, options={}):
 
 		"""
@@ -511,6 +546,7 @@ class AlmaTools():
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
 		r = requests.get(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items", params=parameters,verify= False)
+		print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -528,6 +564,7 @@ class AlmaTools():
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
 		r = requests.get(f"{self.base_api_url}{mms_id}/holdings/{holding_id}/items/{item_pid}", params=parameters,verify= False)
+		#print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -614,6 +651,55 @@ class AlmaTools():
 		self.xml_response_data=  r.text
 		self.status_code = r.status_code
 
+
+	def get_representation_details(self, mms_id, rep_id, options={}):
+
+		"""
+		Retrieves digital representations attached to a given MMS ID  and files details
+		Parameters:
+			mms_id(str) - Alma MMS ID
+			options(dict) - optional parameters for request
+			rep_id(str) - Alma representation id
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.get(f"{self.base_api_url}{mms_id}/representations/{rep_id}/files", params=parameters,verify= False)
+		self.xml_response_data=  r.text
+		self.status_code = r.status_code
+
+	def get_representation_file_details(self, mms_id, rep_id, file_id, options={}):
+
+		"""
+		Retrieves digital representation file attached to a given MMS ID 
+		Parameters:
+			mms_id(str) - Alma MMS ID
+			options(dict) - optional parameters for request
+			rep_id(str) - Alma representation id
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.get(f"{self.base_api_url}{mms_id}/representations/{rep_id}/files/{file_id}", params=parameters,verify= False)
+		self.xml_response_data=  r.text
+		self.status_code = r.status_code
+
+	def delete_representation_file_details(self, mms_id, rep_id, file_id, options={}):
+
+		"""
+		Delete digital representation file attached to a given MMS ID 
+		Parameters:
+			mms_id(str) - Alma MMS ID
+			options(dict) - optional parameters for request
+			rep_id(str) - Alma representation id
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.delete(f"{self.base_api_url}{mms_id}/representations/{rep_id}/files/{file_id}", params=parameters,verify= False)
+		self.xml_response_data=  r.text
+		self.status_code = r.status_code
+
 	def update_representation(self, mms_id, rep_id, xml_record_data, options={}):
 
 		"""
@@ -648,6 +734,7 @@ class AlmaTools():
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
 		r = requests.get(f"{self.acq_base_api_url}{po_line}", params=parameters,verify= False)
+		#print(r.url)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -666,6 +753,36 @@ class AlmaTools():
 		"""
 		parameters = {**{"apikey": self.alma_key}, **options}
 		r = requests.get(f"{self.acq_base_vendor_url}{vendor_code}", params=parameters,verify= False)
+		self.xml_response_data = r.text
+		self.status_code = r.status_code
+
+	def get_vendor(self, vendor_code, options={}):
+
+		""" 
+		Retrieves the purchase order line  in XML for a given Alma POL
+		Parameters:
+			vendor_code(str) - Alma vendor code
+			options(dict) - optional parameters for request
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.get(f"{self.acq_base_vendor_url}{vendor_code}", params=parameters,verify= False)
+		self.xml_response_data = r.text
+		self.status_code = r.status_code	
+
+	def get_vendors(self,options={}):
+
+		""" 
+		Retrieves the purchase order line  in XML for a given Alma POL
+		Parameters:
+			vendor_code(str) - Alma vendor code
+			options(dict) - optional parameters for request
+		Returns:
+			None
+		"""
+		parameters = {**{"apikey": self.alma_key}, **options}
+		r = requests.get(f"{self.acq_base_vendor_url}", params=parameters,verify= False)
 		self.xml_response_data = r.text
 		self.status_code = r.status_code
 
@@ -700,6 +817,7 @@ class AlmaTools():
 		r = requests.put(f"{self.acq_base_api_url}{po_line}", headers=self.headers, params=parameters, data=xml_record_data.encode("utf-8"),verify= False)
 		self.xml_response_data=  r.text
 		self.status_code = r.status_code
+
 	def get_items_by_po_line(self, po_line, options={}):
 		
 		""" 
